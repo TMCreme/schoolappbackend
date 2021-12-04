@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% load staticfiles %}
+        {% load widget_tweaks %}
+        
+        <style>
+            .reg_form {
+                line-height: 30px;
+                padding: 10px;
+                text-decoration: overline;
+            }
+        
+        </style>
+        
+    </head>
+    
+    <body>
+        <form method="POST" action="." class="reg_form">
+            {% csrf_token %}
+            {{ form.username | add_class:"css_class" | attr:"placeholder:Username" }}<br/>
+            {{ form.password | add_class:"css_class" | attr:"placeholder:Password" }} <br/>   
+            <h2><button type="submit" >LOGIN</button></h2>
+
+        </form>
+    
+    
+    </body>
