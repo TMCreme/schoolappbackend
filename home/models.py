@@ -55,6 +55,10 @@ class Subject(models.Model):
     level = models.CharField(max_length=250)
 
 
+    def __str__(self):
+        return self.name + " for " +self.level
+
+
 
 
 
@@ -72,6 +76,10 @@ class TextBook(models.Model):
     author = models.CharField(max_length=250)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     book = models.FileField()
+
+
+    def __str__(self):
+        return self.name
     
 
 

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from .models import BaseUser, School
+from .models import BaseUser, School, Subject, TextBook
 
 
 
@@ -28,3 +28,32 @@ class ChangePasswordSerializzer(serializers.Serializer):
 	class Meta:
 		model = BaseUser
 		fields = ["old_password", "new_password"]
+
+
+
+class TextBookSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = TextBook
+		fields = "__all__"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

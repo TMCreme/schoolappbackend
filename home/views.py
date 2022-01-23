@@ -1,4 +1,5 @@
 # Main django imports
+from django.db.models.query import QuerySet
 from django.shortcuts import redirect, render, reverse, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -25,11 +26,38 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 # In-app imports 
 from backend.settings import SECRET_KEY
 from .serializers import (
-    UserSerializer, ChangePasswordSerializzer
+    UserSerializer, ChangePasswordSerializzer, TextBookSerializer
 )
 from .models import (
-    BaseUser, School
+    BaseUser, School, TextBook, Subject
 )
+# from custom_permissions import Teacher, Student, ParentOrGuardian, SchoolAdmin
+# I am implementing the custom permissions in views because VS Code was giving me issues when I tried 
+# importing from my custom_permissions module above. I will look at this later 
+
+class SchoolAdmin(BasePermission):
+    def has_permission(self, request, view):
+        if request.user and request.user.groups.filter(name="SchoolAdmin"):
+            return True
+        
+        return False
+class Student(BasePermission):
+    def has_permission(self, request, view):
+        if request.user and request.user.groups.filter(name="Student"):
+            return True
+
+        return False
+class Teacher(BasePermission):
+    def has_permission(self, request, view):
+        if request.user and request.user.groups.filter(name="Teacher"):
+            return True
+
+        return False
+class ParentOrGuardian(BasePermission):
+    def has_permission(self, request, view):
+        if request.user and request.user.groups.filter(name="ParentOrGuardian"):
+            return True
+        return False
 
 
 def index(request):
@@ -52,10 +80,12 @@ class LoginUserView(APIView):
                 }
                 return Response(response, status=status.HTTP_307_TEMPORARY_REDIRECT)
             else:
+                org_name = OrganizationUser.objects.get(user__id=baseuser.id).organization.name
                 payload = jwt_payload_handler(user)
                 print(request.META.get('headers'))
                 token = {
                     'token': jwt.encode(payload, SECRET_KEY),
+                    'organization': org_name,
                     'status': 'success'
                     }
                 print(token)
@@ -67,7 +97,7 @@ class LoginUserView(APIView):
             )
 
 @api_view(['POST'])
-@permission_classes((AllowAny,))
+# @permission_classes((IsAuthenticated,SchoolAdmin))
 def create_user(request):
     org_details = request.data["organization"]
     print(org_details)
@@ -75,7 +105,7 @@ def create_user(request):
     if serialized.is_valid():
         serialized.save()
         new_user = BaseUser.objects.get(username=request.data["registration"]["username"])
-        Organization.objects.get(name=org_details["name"]).add_user(new_user)
+        School.objects.get(name=org_details["name"]).add_user(new_user)
         token = {
                 'message': "User created successfully",
                 'status': 'success'
@@ -115,6 +145,21 @@ class ChangePasswordView(generics.UpdateAPIView):
             }
             return Response(response)
 
+
+
+class LogoutAPIView(APIView):
+	permission_classes = (IsAuthenticated,)
+
+	def post(self,request):
+		print(request.user.id)
+		request.data.pop('auth_token')
+		return Response({'status':'success'})
+
+class TextBookView(generics.ListCreateAPIView):
+    # permission_classes = (Student,)
+    serializer_class = TextBookSerializer 
+    model = TextBook
+    queryset = TextBook.objects.all()
 
 
 
