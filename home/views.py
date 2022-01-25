@@ -2,7 +2,7 @@
 from django.db.models.query import QuerySet
 from django.shortcuts import redirect, render, reverse, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.conf import settings
 from django.contrib import messages
 from django.utils.safestring import mark_safe
@@ -97,7 +97,7 @@ class LoginUserView(APIView):
             )
 
 @api_view(['POST'])
-# @permission_classes((IsAuthenticated,SchoolAdmin))
+@permission_classes((IsAuthenticated,SchoolAdmin))
 def create_user(request):
     org_details = request.data["organization"]
     print(org_details)
@@ -106,6 +106,8 @@ def create_user(request):
         serialized.save()
         new_user = BaseUser.objects.get(username=request.data["registration"]["username"])
         School.objects.get(name=org_details["name"]).add_user(new_user)
+        mygroup = Group.objects.get(name=org_details["group"])
+        mygroup.user_set.add(new_user)
         token = {
                 'message': "User created successfully",
                 'status': 'success'
