@@ -16,6 +16,11 @@ urlpatterns = [
     path("accounts/", include('organizations.urls')),
     path("invitations/", include(invitation_backend().get_urls())),
     path("api-textbook/", views.TextBookView.as_view(), name="api-textbook"),
+    path("api-admin-student-list/", views.SchoolAdminStudentView.as_view(), name="api-admin-student-list"),
+    path("api-student-parent-link/", views.StudentParentRelationView.as_view(), name="api-student-parent-link"),
+    path("api-student-link-level/", views.StudentLinkLevel.as_view(), name="api-student-link-level"),
+    path("api-student-level-update/", views.StudentLevelUpdate.as_view(), name="api-student-level-update"),
+    
 ] 
 
 

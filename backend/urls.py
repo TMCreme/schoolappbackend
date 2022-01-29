@@ -33,8 +33,8 @@ if settings.DEBUG:
     ]
 
 admin.site.site_header = "Fiala Administration"
-admin.site.site_title = "ServApp Administration Portal"
-admin.site.index_title = "Welcome to The ServApp Administration Portal"
+admin.site.site_title = "Fiala Administration Portal"
+admin.site.index_title = "Welcome to The Fiala Administration Portal"
 
 
 

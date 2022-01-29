@@ -1,3 +1,5 @@
+from textwrap import indent
+from turtle import back
 from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
@@ -8,6 +10,8 @@ from django.core.mail import send_mail
 from organizations.models import Organization, OrganizationUser
 import uuid
 from django.conf import settings
+
+
 
 class School(Organization):
     date_created = models.DateTimeField(auto_now_add=True,db_index=True)
@@ -43,6 +47,18 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     )
 
 
+class Level(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True, db_index=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    levelid = models.UUIDField(unique=True, db_index=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=250, db_index=True)
+    students = models.ManyToManyField(BaseUser, related_name="StudentsInTheClass",blank=True)
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+
+
+    def __str__(self):
+        return self.name
+
 
 
 class Subject(models.Model):
@@ -50,9 +66,9 @@ class Subject(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     subjectid = models.UUIDField(unique=True, db_index=True, default=uuid.uuid4, editable=False)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
-    teacher = models.ForeignKey(BaseUser, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(BaseUser, on_delete=models.CASCADE, related_name="SubjectTeacher")
     name = models.CharField(max_length=250)
-    level = models.CharField(max_length=250)
+    level = models.ForeignKey(Level, on_delete=models.CASCADE, related_name="SubjectClass")
 
 
     def __str__(self):
@@ -84,9 +100,23 @@ class TextBook(models.Model):
 
 
 
+class StudentParentRelation(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True, db_index=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    parent = models.OneToOneField(BaseUser, on_delete=models.CASCADE, related_name="Parent")
+    studentone = models.OneToOneField(BaseUser, on_delete=models.CASCADE, related_name="Student")
+    
 
 
+    def __str__(self):
+        return self.studentone.username + "'s Parent is : " + self.parent.username.upper()  
 
+
+    def student(self):
+        return 
+
+
+# class 
 
 
 

@@ -1,4 +1,6 @@
 # Main django imports
+from selectors import BaseSelector
+from corsheaders import django
 from django.db.models.query import QuerySet
 from django.shortcuts import redirect, render, reverse, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
@@ -26,10 +28,12 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 # In-app imports 
 from backend.settings import SECRET_KEY
 from .serializers import (
-    UserSerializer, ChangePasswordSerializzer, TextBookSerializer
+    UserSerializer, ChangePasswordSerializzer, TextBookSerializer, LevelSerializer,
+    StudentParentRelationSerializer, SubjectSerializer, 
 )
 from .models import (
-    BaseUser, School, TextBook, Subject
+    BaseUser, School, TextBook, Subject, Level, StudentParentRelation, 
+
 )
 # from custom_permissions import Teacher, Student, ParentOrGuardian, SchoolAdmin
 # I am implementing the custom permissions in views because VS Code was giving me issues when I tried 
@@ -73,26 +77,31 @@ class LoginUserView(APIView):
         if user:
             if baseuser.change_password:
                 response = {
-                    "status" : False,
-                    "code" : status.HTTP_307_TEMPORARY_REDIRECT,
-                    "message" : "password reset required",
-                    "data" : []
+                    "status" : "Inactive", 
+                    "data" : 
+                        {
+                            "code" : status.HTTP_307_TEMPORARY_REDIRECT,
+                            "message" : "password reset required",
+                        }
+                    
                 }
-                return Response(response, status=status.HTTP_307_TEMPORARY_REDIRECT)
+                return Response(response)
             else:
                 org_name = OrganizationUser.objects.get(user__id=baseuser.id).organization.name
+                mygroup = user.groups.all()[0].name
                 payload = jwt_payload_handler(user)
-                print(request.META.get('headers'))
+                print(mygroup)
                 token = {
+                    'status': 'success',
                     'token': jwt.encode(payload, SECRET_KEY),
                     'organization': org_name,
-                    'status': 'success'
+                    "group":mygroup
                     }
-                print(token)
+                # print(token)
                 return Response(token)
         else:
             return Response(
-            {'error': 'Invalid credentials',
+            {'message': 'Invalid credentials',
             'status': 'failed'},
             )
 
@@ -134,7 +143,7 @@ class ChangePasswordView(generics.UpdateAPIView):
             #check old password
             if not self.object.check_password(serializer.data.get("old_password")):
                 return Response({
-                    "old_password" : ["Wrong Paswsword"]
+                    "old_password" : ["Current password is Wrong"]
                 }, status=status.HTTP_400_BAD_REQUEST)
             self.object.set_password(serializer.data.get("new_password"))
             BaseUser.objects.filter(username=self.object.username).update(change_password=False)
@@ -164,16 +173,71 @@ class TextBookView(generics.ListCreateAPIView):
     queryset = TextBook.objects.all()
 
 
+# This view is for the School Admin. It will be used for assigning a newly created user to a
+# class 
+class SchoolAdminStudentView(APIView):
+    # permission_classes = (SchoolAdmin,)
+
+    def post(self, request):
+        org_name = request.data["organization"]
+        org_users = OrganizationUser.objects.filter(organization__name=org_name).values_list("user__username")
+        students = BaseUser.objects.filter(groups__name="Student").values_list("username")
+        print( org_users, students)
+        # results = [{"username": name} for [name] in set(org_users) & set(students)]
+        results = [name for [name] in set(org_users) & set(students)]
+        return Response({
+            "status": "success",
+            "data" : results
+        }, status=status.HTTP_200_OK)
 
 
+class StudentParentRelationView(APIView):
+    # permission_classes = (SchoolAdmin,)
+
+    def post(self, request):
+        print(request.data["parent"])
+        student = BaseUser.objects.get(username=request.data["student"])
+        parent = BaseUser.objects.get(username=request.data["parent"])
+        
+        StudentParentRelation.objects.create(studentone=student, parent=parent)
+        return Response({
+            "status" :"success",
+            "message" : "Student Linked to Parent Successfully",
+            "data": []
+        }, status=status.HTTP_200_OK)
 
 
+from django.core import serializers as dj_serializers
+# This view will list all the levels or classes or stages or forms in the school. 
+# After creating a student, the student is allocated a class
+class StudentLinkLevel(APIView):
+    # permission_classes = (SchoolAdmin,)
+
+    def post(self, request):
+        org_name = School.objects.get(name=request.data["organization"])
+        queryset = Level.objects.filter(school__name=request.data["organization"])
+        levels = [obj.name for obj in queryset]
+        return Response({
+            "status": "success",
+            "message": "Schools classes retrieved successfully",
+            "data" : levels
+        }, status=status.HTTP_200_OK)
 
 
+class StudentLevelUpdate(APIView):
+    # permission_classes = (SchoolAdmin,)
 
-
-
-
+    def post(self, request):
+        org_name = request.data["organization"]
+        level_name = request.data["levelname"]
+        student_obj = BaseUser.objects.get(username=request.data["studentname"])
+        updated_level = Level.objects.get(name=level_name, school__name=org_name) 
+        updated_level.students.add(student_obj)
+        return Response({
+            "status" : "success",
+            "message" : "Student added to the class successfully",
+            "data" : []
+        })
 
 
 

@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from .models import BaseUser, School, Subject, TextBook
+from .models import (
+	BaseUser, School, Subject, TextBook, Level, StudentParentRelation,
+)
 
 
 
@@ -39,14 +41,27 @@ class TextBookSerializer(serializers.ModelSerializer):
 
 
 
+class SubjectSerializer(serializers.ModelSerializer):
+
+	class Meta: 
+		model: Subject
+		fields = "__all__"
 
 
 
+class StudentParentRelationSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = StudentParentRelation 
+		fields = "__all__"
 
 
 
+class LevelSerializer(serializers.ModelSerializer):
 
-
+	class Meta: 
+		model = Level
+		fields = "__all__"
 
 
 
