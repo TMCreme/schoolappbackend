@@ -176,7 +176,7 @@ class TextBookView(generics.ListCreateAPIView):
 # This view is for the School Admin. It will be used for assigning a newly created user to a
 # class 
 class SchoolAdminStudentView(APIView):
-    # permission_classes = (SchoolAdmin,)
+    permission_classes = (SchoolAdmin,)
 
     def post(self, request):
         org_name = request.data["organization"]
@@ -192,7 +192,7 @@ class SchoolAdminStudentView(APIView):
 
 
 class StudentParentRelationView(APIView):
-    # permission_classes = (SchoolAdmin,)
+    permission_classes = (SchoolAdmin,)
 
     def post(self, request):
         print(request.data["parent"])
@@ -211,7 +211,7 @@ from django.core import serializers as dj_serializers
 # This view will list all the levels or classes or stages or forms in the school. 
 # After creating a student, the student is allocated a class
 class StudentLinkLevel(APIView):
-    # permission_classes = (SchoolAdmin,)
+    permission_classes = (SchoolAdmin,)
 
     def post(self, request):
         org_name = School.objects.get(name=request.data["organization"])
@@ -223,9 +223,9 @@ class StudentLinkLevel(APIView):
             "data" : levels
         }, status=status.HTTP_200_OK)
 
-
+# This view allows for allocating the student a class. 
 class StudentLevelUpdate(APIView):
-    # permission_classes = (SchoolAdmin,)
+    permission_classes = (SchoolAdmin,)
 
     def post(self, request):
         org_name = request.data["organization"]
@@ -238,6 +238,93 @@ class StudentLevelUpdate(APIView):
             "message" : "Student added to the class successfully",
             "data" : []
         })
+
+
+
+# This view is for the Admin. It will list all users on the school's account. This will enable the admin 
+# to edit the user information. 
+class AdminUserList(APIView):
+    permission_classes = (SchoolAdmin,)
+
+    def post(self, request):
+        org_name = request.data["organization"]
+        org_users = OrganizationUser.objects.filter(organization__name=org_name)
+        userlist = []
+        for user in org_users:
+            userlist.append({"username":user.user.username, "group":user.user.groups.all()[0].name})
+        return Response({
+            "status" : "success",
+            "message" : "Users retrieved successfully",
+            "data" : userlist
+        })
+
+
+
+class TeacherSubjectView(APIView):
+    permission_classes = (Teacher,)
+
+    def post(self, request):
+        teacher = request.data["teachername"]
+        org_name = request.data["organization"]
+        subjects = Subject.objects.filter(teacher__username=teacher, school__name=org_name)
+        subjectList = [{
+            "name":obj.name, 
+            "level" : obj.level.name
+        } for obj in subjects]
+        return Response({
+            "status" : "success",
+            "message" : "Subject List retrieved successfully",
+            "data" : subjectList
+        }, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

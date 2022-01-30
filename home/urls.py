@@ -20,6 +20,8 @@ urlpatterns = [
     path("api-student-parent-link/", views.StudentParentRelationView.as_view(), name="api-student-parent-link"),
     path("api-student-link-level/", views.StudentLinkLevel.as_view(), name="api-student-link-level"),
     path("api-student-level-update/", views.StudentLevelUpdate.as_view(), name="api-student-level-update"),
+    path("api-admin-user-list/", views.AdminUserList.as_view(), name="api-admin-user-list"),
+    path("api-teacher-subject-list/", views.TeacherSubjectView.as_view(), name="api-teacher-subject-list"),
     
 ] 
 

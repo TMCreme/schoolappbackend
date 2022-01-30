@@ -72,7 +72,7 @@ class Subject(models.Model):
 
 
     def __str__(self):
-        return self.name + " for " +self.level
+        return self.name + " for " +self.level.name
 
 
 
