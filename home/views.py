@@ -1,4 +1,6 @@
 # Main django imports
+from datetime import datetime
+from email import message
 from selectors import BaseSelector
 from corsheaders import django
 from django.db.models.query import QuerySet
@@ -9,7 +11,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.contrib.auth.forms import PasswordChangeForm
-import jwt 
+import jwt, json 
 from organizations.utils import create_organization
 from organizations.models import OrganizationUser, Organization
 
@@ -30,9 +32,11 @@ from backend.settings import SECRET_KEY
 from .serializers import (
     UserSerializer, ChangePasswordSerializzer, TextBookSerializer, LevelSerializer,
     StudentParentRelationSerializer, SubjectSerializer, 
+    PTAScheduleSerializer
 )
 from .models import (
     BaseUser, School, TextBook, Subject, Level, StudentParentRelation, 
+    PTASchedule
 
 )
 # from custom_permissions import Teacher, Student, ParentOrGuardian, SchoolAdmin
@@ -259,7 +263,8 @@ class AdminUserList(APIView):
         })
 
 
-
+# This view is for Teachers. It lists the subjects together with the level/class/stage/form
+# for which the loggedin teacher is assigned to teach. 
 class TeacherSubjectView(APIView):
     permission_classes = (Teacher,)
 
@@ -280,14 +285,56 @@ class TeacherSubjectView(APIView):
 
 
 
+# This view is for Parents. It will list the students together with their level/class/stage/form
+class ParentStudentView(APIView):
+    permission_classes = (ParentOrGuardian,)
+
+    def post(self, request):
+        parentname = request.data["parent"]
+        related_student = StudentParentRelation.objects.filter(parent__username=parentname)
+        print(related_student)
+        student_obj = [{
+            "student_name":obj.studentone.username, 
+            "level": Level.objects.get(students__username=obj.studentone.username).name
+        }for obj in related_student]
+        return Response({
+            "status" : "succcess",
+            "message" : "Students retrieved successfully",
+            "data" : student_obj
+        }, status=status.HTTP_200_OK)
 
 
 
 
+# This view is for the admin to add PTA Events
+class PTAScheduleView(APIView):
+    permission_classes = (SchoolAdmin,) 
+
+    def get(self, request):
+        today = datetime.today()
+        pta_meeting_list = PTASchedule.objects.filter(start_date__gt=today)
+        # print(pta_meeting_list)
+        serialized = PTAScheduleSerializer(pta_meeting_list, many=True)
+        return Response({
+            "status" : "success",
+            "message" : "PTA Schedule retrieved Successfully",
+            "data" : serialized.data
+        })
+
+    def post(self, request, format=None):
+        serialized_data = PTAScheduleSerializer(data=request.data)
+        if serialized_data.is_valid():
+            serialized_data.save()
+            return Response({
+                "status" : "success",
+                "message" : "PTA Meeting Saved Successfully",
+                "data": []
+            }, status=status.HTTP_201_CREATED)
+        return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
-
+# class PTAMeetingListView()
 
 
 

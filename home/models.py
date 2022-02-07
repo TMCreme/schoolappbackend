@@ -1,5 +1,3 @@
-from textwrap import indent
-from turtle import back
 from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
@@ -116,7 +114,95 @@ class StudentParentRelation(models.Model):
         return 
 
 
-# class 
+# PTA Schedule model
+class PTASchedule(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True, db_index=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    start_date = models.DateTimeField(db_index=True)
+    end_date = models.DateTimeField(db_index=True)
+    title = models.CharField(max_length=300, db_index=True)
+    meeting_agenda = models.TextField()
+    meeting_minutes = models.TextField(null=True, blank=True)
+
+
+    def __str__(self):
+        return self.title
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

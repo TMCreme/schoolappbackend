@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     School, BaseUser, Subject, TextBook, Level, 
-    StudentParentRelation
+    StudentParentRelation, PTASchedule
 )
 
 
@@ -15,5 +15,6 @@ admin.site.register(Subject)
 admin.site.register(TextBook)
 admin.site.register(Level)
 admin.site.register(StudentParentRelation)
+admin.site.register(PTASchedule)
 
 # Register your models here.
