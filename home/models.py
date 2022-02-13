@@ -1,3 +1,4 @@
+from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
@@ -133,6 +134,27 @@ class PTASchedule(models.Model):
 
 
 
+
+class AdminRemarkForStudent(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True, db_index=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(BaseUser, on_delete=models.CASCADE, related_name="admin_giving_remark")
+    student = models.ForeignKey(BaseUser, on_delete=models.CASCADE)
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    remark = models.TextField()
+
+
+
+
+class TeacherRemarkForStudent(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True, db_index=True)
+    date_modified = models.DateTimeField(auto_now=True, db_index=True)
+    teacher = models.ForeignKey(BaseUser, on_delete=models.CASCADE, related_name="teacher_giving_remark")
+    student = models.ForeignKey(BaseUser, on_delete=models.CASCADE, db_index=True, related_name="student_receiving_remark")
+    school = models.ForeignKey(School, on_delete=models.CASCADE, db_index=True)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    level = models.ForeignKey(Level, on_delete=models.CASCADE)
+    remark = models.TextField()
 
 
 

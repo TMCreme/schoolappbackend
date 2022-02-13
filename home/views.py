@@ -1,6 +1,7 @@
 # Main django imports
 from datetime import datetime
 from email import message
+from os import stat
 from selectors import BaseSelector
 from corsheaders import django
 from django.db.models.query import QuerySet
@@ -32,11 +33,12 @@ from backend.settings import SECRET_KEY
 from .serializers import (
     UserSerializer, ChangePasswordSerializzer, TextBookSerializer, LevelSerializer,
     StudentParentRelationSerializer, SubjectSerializer, 
-    PTAScheduleSerializer
+    PTAScheduleSerializer, AdminRemarkForStudentSerializer,
+    TeacherRemarkForStudentSerializer
 )
 from .models import (
     BaseUser, School, TextBook, Subject, Level, StudentParentRelation, 
-    PTASchedule
+    PTASchedule, AdminRemarkForStudent, TeacherRemarkForStudent
 
 )
 # from custom_permissions import Teacher, Student, ParentOrGuardian, SchoolAdmin
@@ -161,7 +163,26 @@ class ChangePasswordView(generics.UpdateAPIView):
             return Response(response)
 
 
+# Admin will be able to reset the user's password from this view. 
+# This is to handle lost or forgotten password since students might not necessrily have emails addresses
 
+class AdminPasswordResetView(APIView):
+    permission_classes = (SchoolAdmin,)
+
+    def post(self, request):
+        user = BaseUser.objects.get(username=request.data["username"])
+        temp_password = request.data["temp_password"] 
+        user.set_password(temp_password)
+        user.change_password = True
+        user.save()
+        return Response({
+            "status":"success",
+            "message": "User pasword updated sucessfully"
+        }, status=status.HTTP_200_OK)
+
+
+
+# Simple logout view to delete the auth token in the API calls
 class LogoutAPIView(APIView):
 	permission_classes = (IsAuthenticated,)
 
@@ -194,6 +215,9 @@ class SchoolAdminStudentView(APIView):
             "data" : results
         }, status=status.HTTP_200_OK)
 
+
+
+# This view is for asigning a student to a newly added parent. Note that a student must exist before the parent
 
 class StudentParentRelationView(APIView):
     permission_classes = (SchoolAdmin,)
@@ -306,7 +330,7 @@ class ParentStudentView(APIView):
 
 
 
-# This view is for the admin to add PTA Events
+# This view is for the admin to add PTA Events and view already created upcoming PTA Events
 class PTAScheduleView(APIView):
     permission_classes = (SchoolAdmin,) 
 
@@ -334,12 +358,65 @@ class PTAScheduleView(APIView):
 
 
 
-# class PTAMeetingListView()
+# This view is to add Remark for Students by the Admin 
+class AdminRemarkForStudentView(APIView):
+    permission_classes = (SchoolAdmin,)
+
+    def post(self, request):
+        try:
+            school =  School.objects.get(name=request.data["organization"])
+            created_by = BaseUser.objects.get(username=request.data["adminusername"])
+            student = BaseUser.objects.get(username=request.data["studentusername"])
+            remark = request.data["studentremark"]
+            serialized_data = AdminRemarkForStudentSerializer(data={
+                "created_by": created_by,
+                "student": student,
+                "school": school,
+                "remark": remark
+            })
+            if serialized_data.is_valid():
+                serialized_data.save()
+                return Response({
+                    "status" : "success",
+                    "message" : "Remark Added Successfully",
+                    "data" : []
+                }, status=status.HTTP_200_OK)
+            return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                "status" : "failed",
+                "message" : " An Error was encountered",
+                "error" : str(e)
+            }, status=status.HTTP_417_EXPECTATION_FAILED)
 
 
 
 
+# This is a teacher's view to get all students in a particular class. 
+# The student automatically belongs to the Subjects list under the class
+class StudentListForSubjectView(APIView):
+    permission_classes = (Teacher,)
 
+    def post(self, request):
+        try:
+            subject = request.data["subject"]
+            level = request.data["level"]
+            print(request.data["organization"])
+            student_list = Level.objects.get(school__name=request.data["organization"], name=level).students.all()
+            
+            student_list = [obj.username for obj in student_list]
+            return Response({
+                "status" : "success",
+                "message" : "Students retrieved sucessfully",
+                "data" : student_list
+            }, status=status.HTTP_200_OK) 
+
+        except Exception as e:
+            return Response({
+                "status" : "failed",
+                "message" : "An error was encountered",
+                "error" : str(e)
+            }, status=status.HTTP_200_OK)
 
 
 

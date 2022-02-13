@@ -2,7 +2,7 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from .models import (
 	BaseUser, School, Subject, TextBook, Level, StudentParentRelation,
-	PTASchedule,
+	PTASchedule,AdminRemarkForStudent, TeacherRemarkForStudent
 )
 
 
@@ -72,6 +72,41 @@ class PTAScheduleSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = PTASchedule
 		fields = "__all__"
+
+
+# AdminRemarkForStudent
+# TeacherRemarkForStudent
+
+class AdminRemarkForStudentSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = AdminRemarkForStudent
+		fields = "__all__"
+
+
+
+
+class TeacherRemarkForStudentSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = TeacherRemarkForStudent
+		fields = "__all__"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

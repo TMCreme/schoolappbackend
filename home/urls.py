@@ -13,6 +13,7 @@ urlpatterns = [
     path("api-change-password/", views.ChangePasswordView.as_view(), name="api-change-password"),
     path('api-password-reset/', include('django_rest_passwordreset.urls', namespace='api-password-reset')),
     path('api-logout-user/', views.LogoutAPIView.as_view(), name='api-logout-user'),
+    path("api-admin-password-reset/", views.AdminPasswordResetView.as_view(), name="api-admin-password-reset"),
     path("accounts/", include('organizations.urls')),
     path("invitations/", include(invitation_backend().get_urls())),
     path("api-textbook/", views.TextBookView.as_view(), name="api-textbook"),
@@ -24,6 +25,8 @@ urlpatterns = [
     path("api-teacher-subject-list/", views.TeacherSubjectView.as_view(), name="api-teacher-subject-list"),
     path("api-parent-student-view/", views.ParentStudentView.as_view(), name="api-parent-student-view"),
     path("api-add-ptaschedule/", views.PTAScheduleView.as_view(), name="api-add-ptaschedule"),
+    path("api-admin-add-student-remark/", views.AdminRemarkForStudentView.as_view(),name='api-admin-add-student-remark'),
+    path("api-student-list-for-subject/", views.StudentListForSubjectView.as_view(), name="api-student-view-for-subject"),
     
 ] 
 
