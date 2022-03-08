@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/3.1/howto/deployment/wsgi/
 
 import os
 
-from channels.auth import AuthMiddlewareStack
-from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.routing import ProtocolTypeRouter
+# from channels.auth import AuthMiddlewareStack
+# from channels.routing import ProtocolTypeRouter, URLRouter
+# from channels.routing import ProtocolTypeRouter
 from django.core.wsgi import get_wsgi_application
 
 import chat.urls

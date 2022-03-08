@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ["192.168.8.172", "localhost", "127.0.0.1"]
 
 # LOGIN_URL = "/accounts/login/"
 # Application definition
-WSGI_APPLICATION = "backend.wsgi.application"
+
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'channels',
+    # 'channels',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_jwt',
@@ -152,6 +152,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FileUploadParser',
     )
 }
 import datetime
@@ -174,15 +176,19 @@ CORS_ALLOW_METHODS = (
 )
 
 CORS_ALLOW_HEADERS = (
-    'accept',
+    'Accept',
     'accept-encoding',
     'authorization',
     'content-type',
+    'Content-Disposition',
     'dnt',
     'origin',
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    "Access-Control-Allow-Methods",
+    "Access-Control-Allow-Headers",
+    "Access-Control-Allow-Origin"
 )
 
 CORS_ALLOWED_ORIGINS = [
@@ -205,18 +211,18 @@ MEDIA_ROOT = BASE_DIR / "media/"
 
 
 
-ASGI_APPLICATION = 'backend.asgi.application'
+# ASGI_APPLICATION = 'backend.asgi.application'
 
 
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": ['redis://localhost:6379/4']
-        }
-    },
-}
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": ['redis://localhost:6379/4']
+#         }
+#     },
+# }
 
 
 # SECURE_SSL_REDIRECT=True

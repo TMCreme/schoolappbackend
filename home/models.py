@@ -18,7 +18,8 @@ class School(Organization):
     school_id = models.UUIDField(unique=True, db_index=True, default=uuid.uuid4, editable=False)
     # name = models.CharField(max_length=250)
     # slug = 
-    logo = models.ImageField()
+    logo = models.ImageField(null=True, blank=True)
+    deleted = models.BooleanField(default=False)
 
 
 
@@ -53,6 +54,7 @@ class Level(models.Model):
     name = models.CharField(max_length=250, db_index=True)
     students = models.ManyToManyField(BaseUser, related_name="StudentsInTheClass",blank=True)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
+    deleted = models.BooleanField(default=False)
 
 
     def __str__(self):
@@ -68,6 +70,7 @@ class Subject(models.Model):
     teacher = models.ForeignKey(BaseUser, on_delete=models.CASCADE, related_name="SubjectTeacher")
     name = models.CharField(max_length=250)
     level = models.ForeignKey(Level, on_delete=models.CASCADE, related_name="SubjectClass")
+    deleted = models.BooleanField(default=False)
 
 
     def __str__(self):
@@ -91,6 +94,7 @@ class TextBook(models.Model):
     author = models.CharField(max_length=250)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     book = models.FileField()
+    deleted = models.BooleanField(default=False)
 
 
     def __str__(self):
@@ -104,6 +108,7 @@ class StudentParentRelation(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     parent = models.OneToOneField(BaseUser, on_delete=models.CASCADE, related_name="Parent")
     studentone = models.OneToOneField(BaseUser, on_delete=models.CASCADE, related_name="Student")
+    deleted = models.BooleanField(default=False)
     
 
 
@@ -124,6 +129,7 @@ class PTASchedule(models.Model):
     title = models.CharField(max_length=300, db_index=True)
     meeting_agenda = models.TextField()
     meeting_minutes = models.TextField(null=True, blank=True)
+    deleted = models.BooleanField(default=False)
 
 
     def __str__(self):
@@ -142,6 +148,7 @@ class AdminRemarkForStudent(models.Model):
     student = models.ForeignKey(BaseUser, on_delete=models.CASCADE)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     remark = models.TextField()
+    deleted = models.BooleanField(default=False)
 
 
 
@@ -155,16 +162,39 @@ class TeacherRemarkForStudent(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     level = models.ForeignKey(Level, on_delete=models.CASCADE)
     remark = models.TextField()
+    deleted = models.BooleanField(default=False)
 
 
 
 
 
 
+# Assignment 
+class Assignment(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True, db_index=True)
+    date_modified = models.DateTimeField(auto_now=True, db_index=True)
+    name = models.CharField(max_length=250, db_index=True)
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    subject =  models.ForeignKey(Subject, on_delete=models.CASCADE)
+    file = models.FileField(upload_to="assignments")
+    notes = models.TextField(null=True, blank=True)
+    date_due = models.DateTimeField()
+    deleted = models.BooleanField(default=False)
 
 
 
 
+
+class ClassTimeTable(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True, db_index=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    level = models.ForeignKey(Level, on_delete=models.CASCADE)
+    deleted = models.BooleanField(default=False)
+    file = models.FileField(upload_to="timetable")
+
+    class Meta:
+        unique_together = ("school", "level")
 
 
 

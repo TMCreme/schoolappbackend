@@ -2,7 +2,8 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from .models import (
 	BaseUser, School, Subject, TextBook, Level, StudentParentRelation,
-	PTASchedule,AdminRemarkForStudent, TeacherRemarkForStudent
+	PTASchedule,AdminRemarkForStudent, TeacherRemarkForStudent, Assignment,
+	ClassTimeTable
 )
 
 
@@ -96,11 +97,22 @@ class TeacherRemarkForStudentSerializer(serializers.ModelSerializer):
 
 
 
+class AssignmentSerializer(serializers.ModelSerializer):
+	
+	class Meta: 
+		model = Assignment
+		fields = "__all__"
 
 
 
 
+class ClassTimeTableSerializer(serializers.ModelSerializer):
+	
+	class Meta:
+		model = ClassTimeTable
+		fields = "__all__"
 
+	
 
 
 

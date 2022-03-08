@@ -5,6 +5,10 @@ Remmeber during deployment to initiate creating the various groups either progra
 Remember to add the permissions on the various classes on the API
 
 
+# IMPORTANT
+	* I had to edit the rest_framework_jwt/authentication.py file
+		- Removed the smart_text import and implementation
+		_ Change the transalation import from ugettext to gettext
 
 Password reset should be done by admin
 User groups done. 

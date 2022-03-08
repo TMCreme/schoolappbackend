@@ -3,6 +3,7 @@ from datetime import datetime
 from email import message
 from os import stat
 from selectors import BaseSelector
+from time import time
 from corsheaders import django
 from django.db.models.query import QuerySet
 from django.shortcuts import redirect, render, reverse, get_object_or_404
@@ -24,6 +25,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import generics, mixins, status, viewsets 
 from rest_framework.permissions import BasePermission, IsAuthenticated, AllowAny
+from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -34,12 +36,13 @@ from .serializers import (
     UserSerializer, ChangePasswordSerializzer, TextBookSerializer, LevelSerializer,
     StudentParentRelationSerializer, SubjectSerializer, 
     PTAScheduleSerializer, AdminRemarkForStudentSerializer,
-    TeacherRemarkForStudentSerializer
+    TeacherRemarkForStudentSerializer, AssignmentSerializer,
+    ClassTimeTableSerializer
 )
 from .models import (
     BaseUser, School, TextBook, Subject, Level, StudentParentRelation, 
-    PTASchedule, AdminRemarkForStudent, TeacherRemarkForStudent
-
+    PTASchedule, AdminRemarkForStudent, TeacherRemarkForStudent, Assignment,
+    ClassTimeTable,
 )
 # from custom_permissions import Teacher, Student, ParentOrGuardian, SchoolAdmin
 # I am implementing the custom permissions in views because VS Code was giving me issues when I tried 
@@ -420,6 +423,121 @@ class StudentListForSubjectView(APIView):
 
 
 
+from .utils import base64_to_file
+class PostAssignmentView(APIView):
+    permission_classes = (Teacher,)
+    
+    
+    def get(self, request):
+        assignment = Assignment.objects.all()
+        serialized = AssignmentSerializer(assignment, many=True)
+        return Response({
+            "status" : "success",
+            "message" : "PTA Schedule retrieved Successfully",
+            "data" : serialized.data
+        })
+
+    def post(self, request):
+        # print("Request data: \n", request.data)
+        # print("Request files: \n", request.FILES["file"])
+        try:
+            school = School.objects.get(name=request.data["school"])
+            subject = Subject.objects.get(name=request.data["subject"]).id
+            data = {
+                "name": request.data["name"],
+                "school": school,
+                "subject": subject,
+                "file": base64_to_file(request.data["file"], name="{} for {}".format(request.data["name"],request.data["subject"])),
+                "notes": request.data["notes"],
+                "date_due" : request.data["date_due"]
+            }
+            serialized_data = AssignmentSerializer(data=data)
+            if serialized_data.is_valid():
+                serialized_data.save()
+                return Response({
+                    "status" : "success",
+                    "message" : "Asignment posted successfully",
+                    "data" : []
+                }, status=status.HTTP_200_OK)
+            return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                "status" : "failed",
+                "message" : "An error occured",
+                "error" : str(e)
+            }, status=status.HTTP_200_OK)
+
+
+# List Levels available in the school 
+class LevelListView(APIView):
+    permission_classes = (SchoolAdmin, )
+
+    def post(self, request):
+        try:
+            levels = Level.objects.filter(school__name=request.data["school"])
+            serialized_data = LevelSerializer(levels, many=True)
+            return Response({
+                "status" : "success",
+                "message" : "Levels retrieved succesfully",
+                "data" : serialized_data.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status" :"failed",
+                "message" : "An error occurred",
+                "error" : str(e)
+            }, status=status.HTTP_200_OK)
+
+
+
+
+
+
+# This view is for posting time tables in pdf format for classes or levels
+class ClassTimeTableView(APIView):
+    permission_classes = (SchoolAdmin,)
+
+    def post(self, request):
+        try:
+            school = School.objects.get(name=request.data["school"])
+            level = Level.objects.get(name=request.data["level"])
+            data = {
+                "school" : school,
+                "level" : level.id,
+                "file" : base64_to_file(request.data["file"], name="Timetable for{} at {}".format(level, school))
+            }
+            serialized_data = ClassTimeTableSerializer(data=data)
+            if serialized_data.is_valid():
+                serialized_data.save()
+                return Response({
+                    "status" : "success",
+                    "message" : "Time Table added successfully",
+                    "data" : []
+                }, status=status.HTTP_200_OK)
+            return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                "status" :"failed",
+                "message" : "An error occurred",
+                "error" : str(e)
+            }, status=status.HTTP_200_OK)
+
+
+# View for dowloading timetable
+
+class ClassTimeTableDownloadview(APIView):
+    permission_classes = (SchoolAdmin,)
+
+    def post(self,request):
+        level = Level.objects.get(name=request.data["level"])
+        school = School.objects.get(name=request.data["school"])
+        time_table = ClassTimeTable.objects.filter(level=level, school=school)
+        timetable = ClassTimeTableSerializer(time_table, many=True)
+        return Response({
+            "status" : "success",
+            "message" : "Time Table for {} retrieved successfully".format(level.name),
+            "data" : timetable.data
+        }, status=status.HTTP_200_OK)
 
 
 
@@ -459,9 +577,8 @@ class StudentListForSubjectView(APIView):
 
 
 
-
-
-
+# This view is not in use for the current APIs. It's kept here for reference purposes. 
+# Might be helpful in the future
 
 def change_password(request):
     form = PasswordChangeForm(request.POST)

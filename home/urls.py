@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.views.static import serve
+from django.conf.urls.static import static
 from organizations.backends import invitation_backend
 from . import views
 
@@ -27,15 +28,15 @@ urlpatterns = [
     path("api-add-ptaschedule/", views.PTAScheduleView.as_view(), name="api-add-ptaschedule"),
     path("api-admin-add-student-remark/", views.AdminRemarkForStudentView.as_view(),name='api-admin-add-student-remark'),
     path("api-student-list-for-subject/", views.StudentListForSubjectView.as_view(), name="api-student-view-for-subject"),
+    path("api-teacher-add-assignment/", views.PostAssignmentView.as_view(), name="api-teacher-add-assignment"),
+    path("api-admin-list-classes/", views.LevelListView.as_view(), name="api-admin-list-classes"),
+    path("api-admin-upload-class-timetable/", views.ClassTimeTableView.as_view(), name="api-admin-upload-class-timetable"),
+    path("api-admin-download-time-table/", views.ClassTimeTableDownloadview.as_view(), name="api-admin-download-time-table"),
     
 ] 
 
 
 if settings.DEBUG:
-    urlpatterns += [
-        re_path(r'^media/(?P<path>.*)$', serve, {
-            'document_root': settings.MEDIA_ROOT,
-        }),
-    ]
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
