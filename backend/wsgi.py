@@ -14,7 +14,7 @@ import os
 # from channels.routing import ProtocolTypeRouter
 from django.core.wsgi import get_wsgi_application
 
-import chat.urls
+# import chat.urls
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
