@@ -28,7 +28,7 @@ SECRET_KEY = 'f+6^)8iihr3r%1i*&356_umxfbj#rj=rf*=1x4kpp-aq7)%&6%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.8.172", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["192.168.8.172", "localhost", "127.0.0.1", "schmgt.herokuapp.com"]
 
 # LOGIN_URL = "/accounts/login/"
 # Application definition
