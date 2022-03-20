@@ -85,8 +85,10 @@ class LoginUserView(APIView):
         user = authenticate(username=username, password=password)
         if user:
             if baseuser.change_password:
+                payload = jwt_payload_handler(user)
                 response = {
                     "status" : "Inactive", 
+                    'token': jwt.encode(payload, SECRET_KEY),
                     "data" : 
                         {
                             "code" : status.HTTP_307_TEMPORARY_REDIRECT,
