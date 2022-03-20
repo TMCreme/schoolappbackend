@@ -35,8 +35,8 @@ ALLOWED_HOSTS = ["192.168.8.172", "localhost", "127.0.0.1"]
 
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST_USER = config["EMAIL"]["EMAIL_HOST_USER"]
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_HOST_USER = config["EMAIL"]["EMAIL_HOST_USER"]
 
 
 INSTALLED_APPS = [
