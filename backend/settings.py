@@ -96,12 +96,18 @@ ORGS_SLUGFIELD = 'django_extensions.db.fields.AutoSlugField'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': config["MYSQLDATABASE"]["NAME"],
-        'USER': config["MYSQLDATABASE"]["USER"],
-        'PASSWORD': config["MYSQLDATABASE"]["PASSWORD"],
-        'HOST': config["MYSQLDATABASE"]["HOST"],
-        'PORT': '3306',
+        # 'ENGINE': 'django.db.backends.mysql',
+        # 'NAME': config["MYSQLDATABASE"]["NAME"],
+        # 'USER': config["MYSQLDATABASE"]["USER"],
+        # 'PASSWORD': config["MYSQLDATABASE"]["PASSWORD"],
+        # 'HOST': config["MYSQLDATABASE"]["HOST"],
+        # 'PORT': '3306',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'df038fi9ps2ce1qp9s',
+        'USER': 'mpvnybcdpxhvhiwer',
+        'PASSWORD': '52860eb68e8fc3ebf79880bb2563dad414f3777b6c21bba2556f4e8bcb1cbb45',
+        'HOST': 'ec2-3-217-170-198.compute-1.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
