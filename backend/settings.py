@@ -103,10 +103,10 @@ DATABASES = {
         # 'HOST': config["MYSQLDATABASE"]["HOST"],
         # 'PORT': '3306',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'd11va69r614qaj',
-        'USER': 'vzxayqegcrottx',
-        'PASSWORD': '3c7a680ee48c69a8a18038347575920940f95c2fa35e11b5d21452fcfb34b5a9',
-        'HOST': 'ec2-63-34-223-144.eu-west-1.compute.amazonaws.com',
+        'NAME': 'd3c7rtrp72tccr',
+        'USER': 'dtabvcvkaenjzk',
+        'PASSWORD': '66c721320c8110548d95fa17d76f80e63d1f8661d49b94a302eff98523f67be6',
+        'HOST': 'ec2-54-155-5-151.eu-west-1.compute.amazonaws.com',
         'PORT': '5432',
     }
 }
