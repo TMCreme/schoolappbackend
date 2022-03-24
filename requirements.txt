@@ -21,7 +21,7 @@ idna==3.3
 incremental==21.3.0
 mysqlclient==2.0.3
 Pillow==8.4.0
-psycopg2==2.9.3
+psycopg2==2.9.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.21
